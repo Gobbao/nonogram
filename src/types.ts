@@ -12,14 +12,12 @@ export interface Monad<T> {
 }
 
 export interface EitherMonad<T> extends Monad<T> {
-  catch: (fn: (value: Error) => void) => void;
+  catch: <R>(fn: (value: T) => R) => EitherMonad<R>;
   map: <R>(fn: (value: T) => R) => EitherMonad<R>;
 }
 
 export interface Puzzle {
   config: Config;
-  spacesTotalCount: number;
-  filledSpacesCount: number;
   filledSpacesTotalCount: number;
   grid: GridCell[][];
 }
@@ -28,4 +26,11 @@ export const enum GridCell {
   Blank,
   Filled,
   Empty,
+}
+
+export interface PuzzleLine {
+  line: GridCell[];
+  lineConfig: number[];
+  lineIndex: number;
+  puzzle: Puzzle;
 }

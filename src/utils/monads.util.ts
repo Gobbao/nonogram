@@ -9,14 +9,14 @@ export const tryOrCatch = <R>(callback: () => R): EitherMonad<R> => {
 }
 
 export const Right = <T>(value: T): EitherMonad<T> => ({
-  catch: () => {},
+  catch: <R>() => Right(value) as unknown as EitherMonad<R>,
   chain: (fn) => fn(value),
   getOrElse: () => value,
   map: (fn) => Right(fn(value)),
 });
 
-export const Left = (value: Error): EitherMonad<Error> => ({
-  catch: (fn) => fn(value),
+export const Left = <T>(value: T): EitherMonad<T> => ({
+  catch: (fn) => Right(fn(value)),
   chain: <R, U>() => Left(value) as unknown as U,
   getOrElse: () => value,
   map: <R>() => Left(value) as unknown as EitherMonad<R>,
