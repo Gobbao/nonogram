@@ -2,7 +2,7 @@ import ErrorMessage from './errors';
 import { Config } from './types';
 import { Identity, tryOrCatch } from './utils/monads.util';
 import { flat, sum } from './utils/functions.util';
-import { countNecessarySpaces } from './puzzle';
+import { countNecessaryCells } from './utils/puzzle.utils';
 
 export const validateConfig = (config: Config) =>
   Identity(config)
@@ -50,7 +50,7 @@ const validateLineLength = (length: number, error: ErrorMessage) => (lines: numb
 const validateLineSpaces = (length: number, error: ErrorMessage) => (lines: number[][]) =>
   tryOrCatch(() => {
     for (const line of lines) {
-      if (countNecessarySpaces(line) > length) {
+      if (countNecessaryCells(line) > length) {
         throw new Error(error);
       }
     }

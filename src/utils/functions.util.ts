@@ -6,6 +6,8 @@ export const trace = <T>(value: T) => {
   return value;
 };
 
+export const always = <T>(value: T) => () => value;
+
 export const get = <T extends string | number>(key: T) =>
   <U extends { [key in T]?: unknown }>(obj: U) => obj[key];
 

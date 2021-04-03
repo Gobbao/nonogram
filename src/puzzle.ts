@@ -1,22 +1,17 @@
 import { Config, GridCell, Puzzle, PuzzleLine } from './types';
-import { cloneMatrix, flat, get, repeatTimes, slice, sum } from './utils/functions.util';
+import { get, repeatTimes } from './utils/functions.util';
 import { Identity } from './utils/monads.util';
+import {
+  buildColumnLine,
+  buildNewPuzzle,
+  copyColumnIntoGrid,
+  countNecessaryCells,
+} from './utils/puzzle.utils';
 
 export const solvePuzzle = (config: Config): Puzzle =>
   // TODO: loop to solve
   // TODO: solve rows
   repeatTimes(config.width, buildNewPuzzle(config), solveColumns);
-
-const buildNewPuzzle = (config: Config): Puzzle => ({
-  config,
-  filledSpacesTotalCount: countTotalFilledSpaces(config),
-  grid: buildNewGrid(config),
-});
-
-const countTotalFilledSpaces = (config: Config) => flat(config.columns).reduce(sum, 0);
-
-const buildNewGrid = (config: Config): number[][] =>
-  Array(config.width).fill(null).map(() => Array(config.height).fill(GridCell.Blank));
 
 const solveColumns = (puzzle: Puzzle, columnIndex: number) =>
   Identity(buildColumnLine(puzzle, columnIndex))
@@ -24,20 +19,6 @@ const solveColumns = (puzzle: Puzzle, columnIndex: number) =>
     .map(copyColumnIntoGrid)
     .map(get('puzzle'))
     .getOrElse();
-
-const buildColumnLine = (puzzle: Puzzle, columnIndex: number): PuzzleLine => ({
-  line: puzzle.grid.map(slice(columnIndex, columnIndex + 1)).flat(),
-  lineConfig: puzzle.config.columns[columnIndex],
-  lineIndex: columnIndex,
-  puzzle,
-});
-
-export const countNecessarySpaces = (line: number[]) => {
-  const countFilledSpaces = line.reduce(sum, 0);
-  const countBlankSpaces = (line.length || 1) - 1;
-
-  return countFilledSpaces + countBlankSpaces;
-};
 
 const fillLineByConjunction = (lineLength: number) => (puzzleLine: PuzzleLine): PuzzleLine => {
   const { line } = puzzleLine.lineConfig.reduce(
@@ -50,7 +31,7 @@ const fillLineByConjunction = (lineLength: number) => (puzzleLine: PuzzleLine): 
         .concat(line.slice(sum + value)),
     }),
     {
-      diff: lineLength - countNecessarySpaces(puzzleLine.lineConfig),
+      diff: lineLength - countNecessaryCells(puzzleLine.lineConfig),
       sum: 0,
       line: puzzleLine.line,
     },
@@ -59,21 +40,5 @@ const fillLineByConjunction = (lineLength: number) => (puzzleLine: PuzzleLine): 
   return {
     ...puzzleLine,
     line,
-  };
-};
-
-const copyColumnIntoGrid = (puzzleLine: PuzzleLine): PuzzleLine => {
-  const clonedGrid = cloneMatrix(puzzleLine.puzzle.grid);
-
-  puzzleLine.line.forEach((value, rowIndex) => {
-    clonedGrid[rowIndex][puzzleLine.lineIndex] = value;
-  });
-
-  return {
-    ...puzzleLine,
-    puzzle: {
-      ...puzzleLine.puzzle,
-      grid: clonedGrid,
-    },
   };
 };

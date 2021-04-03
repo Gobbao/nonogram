@@ -18,7 +18,7 @@ export interface EitherMonad<T> extends Monad<T> {
 
 export interface Puzzle {
   config: Config;
-  filledSpacesTotalCount: number;
+  filledCellsTotalCount: number;
   grid: GridCell[][];
 }
 
