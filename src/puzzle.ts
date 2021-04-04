@@ -1,19 +1,31 @@
 import { Config, GridCell, Puzzle, PuzzleLine } from './types';
-import { get, repeatTimes } from './utils/functions.util';
+import { curry, get, repeatTimes, repeatWhile } from './utils/functions.util';
 import { Identity } from './utils/monads.util';
 import {
   buildColumnLine,
   buildNewPuzzle,
   copyColumnIntoGrid,
   countNecessaryCells,
+  isPuzzleUnsolved,
 } from './utils/puzzle.utils';
 
 export const solvePuzzle = (config: Config): Puzzle =>
-  // TODO: loop to solve
-  // TODO: solve rows
-  repeatTimes(config.width, buildNewPuzzle(config), solveColumns);
+  Identity(config)
+    .map(buildNewPuzzle)
+    .map(repeatWhileUnsolved(solvePuzzleStep))
+    .getOrElse();
 
-const solveColumns = (puzzle: Puzzle, columnIndex: number) =>
+const repeatWhileUnsolved = curry(repeatWhile)(isPuzzleUnsolved);
+
+const solvePuzzleStep = (puzzle: Puzzle) => {
+  const repeatForEachColumn = curry(repeatTimes)(puzzle.config.width);
+
+  return Identity(puzzle)
+    .map(repeatForEachColumn(solveColumn))
+    .getOrElse();
+};
+
+const solveColumn = (puzzle: Puzzle, columnIndex: number) =>
   Identity(buildColumnLine(puzzle, columnIndex))
     .map(fillLineByConjunction(puzzle.config.height))
     .map(copyColumnIntoGrid)

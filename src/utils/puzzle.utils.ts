@@ -33,6 +33,8 @@ export const copyColumnIntoGrid = (puzzleLine: PuzzleLine): PuzzleLine => {
   };
 };
 
+export const countFilledCells = (grid: GridCell[][]) => grid.flat().filter(isCellFilled).length;
+
 export const countNecessaryCells = (lineConfig: number[]) => {
   const countFilledCells = lineConfig.reduce(sum, 0);
   const countBlankCells = (lineConfig.length || 1) - 1;
@@ -41,3 +43,8 @@ export const countNecessaryCells = (lineConfig: number[]) => {
 };
 
 export const countTotalCellsToFill = ({ columns }: Config) => flat(columns).reduce(sum, 0);
+
+export const isCellFilled = (cell: GridCell) => cell === GridCell.Filled;
+
+export const isPuzzleUnsolved = (puzzle: Puzzle) =>
+  countFilledCells(puzzle.grid) !== puzzle.filledCellsTotalCount;
