@@ -15,6 +15,7 @@ export const buildNewPuzzle = (config: Config): Puzzle => ({
   config,
   filledCellsTotalCount: countTotalCellsToFill(config),
   grid: buildNewGrid(config),
+  isImpossibleToSolve: false,
 });
 
 export const copyColumnIntoGrid = (puzzleLine: PuzzleLine): PuzzleLine => {
@@ -47,4 +48,12 @@ export const countTotalCellsToFill = ({ columns }: Config) => flat(columns).redu
 export const isCellFilled = (cell: GridCell) => cell === GridCell.Filled;
 
 export const isPuzzleUnsolved = (puzzle: Puzzle) =>
-  countFilledCells(puzzle.grid) !== puzzle.filledCellsTotalCount;
+  countFilledCells(puzzle.grid) !== puzzle.filledCellsTotalCount && !puzzle.isImpossibleToSolve;
+
+export const setAsImpossibleIfNecessary = (oldPuzzle: Puzzle) => (newPuzzle: Puzzle): Puzzle => {
+  const newCount = countFilledCells(newPuzzle.grid);
+  const oldCount = countFilledCells(oldPuzzle.grid);
+  const isImpossibleToSolve = newCount === oldCount;
+
+  return { ...newPuzzle, isImpossibleToSolve };
+}

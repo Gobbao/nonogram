@@ -7,6 +7,7 @@ import {
   copyColumnIntoGrid,
   countNecessaryCells,
   isPuzzleUnsolved,
+  setAsImpossibleIfNecessary,
 } from './utils/puzzle.utils';
 
 export const solvePuzzle = (config: Config): Puzzle =>
@@ -22,6 +23,7 @@ const solvePuzzleStep = (puzzle: Puzzle) => {
 
   return Identity(puzzle)
     .map(repeatForEachColumn(solveColumn))
+    .map(setAsImpossibleIfNecessary(puzzle))
     .getOrElse();
 };
 
@@ -37,10 +39,12 @@ const fillLineByConjunction = (lineLength: number) => (puzzleLine: PuzzleLine): 
     ({ diff, line, sum }, value) => ({
       diff,
       sum: sum + value + 1,
-      line: line
-        .slice(0, sum + diff)
-        .concat(Array(value - diff).fill(GridCell.Filled))
-        .concat(line.slice(sum + value)),
+      line: value <= diff
+        ? line
+        : line
+          .slice(0, sum + diff)
+          .concat(Array(value - diff).fill(GridCell.Filled))
+          .concat(line.slice(sum + value)),
     }),
     {
       diff: lineLength - countNecessaryCells(puzzleLine.lineConfig),

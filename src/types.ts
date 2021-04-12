@@ -20,6 +20,7 @@ export interface Puzzle {
   config: Config;
   filledCellsTotalCount: number;
   grid: GridCell[][];
+  isImpossibleToSolve: boolean;
 }
 
 export const enum GridCell {
