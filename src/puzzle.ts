@@ -1,10 +1,12 @@
 import { Config, GridCell, Puzzle, PuzzleLine } from './types';
-import { curry, get, repeatTimes, repeatWhile } from './utils/functions.util';
+import { curry, get, repeatTimes, repeatWhile, trace } from './utils/functions.util';
 import { Identity } from './utils/monads.util';
 import {
   buildColumnLine,
   buildNewPuzzle,
+  buildRowLine,
   copyColumnIntoGrid,
+  copyRowIntoGrid,
   countNecessaryCells,
   isPuzzleUnsolved,
   setAsImpossibleIfNecessary,
@@ -20,9 +22,11 @@ const repeatWhileUnsolved = curry(repeatWhile)(isPuzzleUnsolved);
 
 const solvePuzzleStep = (puzzle: Puzzle) => {
   const repeatForEachColumn = curry(repeatTimes)(puzzle.config.width);
+  const repeatForEachRow = curry(repeatTimes)(puzzle.config.height);
 
   return Identity(puzzle)
     .map(repeatForEachColumn(solveColumn))
+    .map(repeatForEachRow(solveRow))
     .map(setAsImpossibleIfNecessary(puzzle))
     .getOrElse();
 };
@@ -31,6 +35,13 @@ const solveColumn = (puzzle: Puzzle, columnIndex: number) =>
   Identity(buildColumnLine(puzzle, columnIndex))
     .map(fillLineByConjunction(puzzle.config.height))
     .map(copyColumnIntoGrid)
+    .map(get('puzzle'))
+    .getOrElse();
+
+const solveRow = (puzzle: Puzzle, rowIndex: number) =>
+  Identity(buildRowLine(puzzle, rowIndex))
+    .map(fillLineByConjunction(puzzle.config.width))
+    .map(copyRowIntoGrid)
     .map(get('puzzle'))
     .getOrElse();
 

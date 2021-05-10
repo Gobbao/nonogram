@@ -8,6 +8,13 @@ export const buildColumnLine = (puzzle: Puzzle, columnIndex: number): PuzzleLine
   puzzle,
 });
 
+export const buildRowLine = (puzzle: Puzzle, rowIndex: number): PuzzleLine => ({
+  line: puzzle.grid[rowIndex],
+  lineConfig: puzzle.config.rows[rowIndex],
+  lineIndex: rowIndex,
+  puzzle,
+});
+
 export const buildNewGrid = ({ height, width }: Config): GridCell[][] =>
   Array(width).fill(null).map(always(Array(height).fill(GridCell.Blank)));
 
@@ -33,6 +40,20 @@ export const copyColumnIntoGrid = (puzzleLine: PuzzleLine): PuzzleLine => {
     },
   };
 };
+
+export const copyRowIntoGrid = (puzzleLine: PuzzleLine): PuzzleLine => {
+  const clonedGrid = cloneMatrix(puzzleLine.puzzle.grid);
+
+  clonedGrid[puzzleLine.lineIndex] = [...puzzleLine.line];
+
+  return {
+    ...puzzleLine,
+    puzzle: {
+      ...puzzleLine.puzzle,
+      grid: clonedGrid,
+    },
+  };
+}
 
 export const countFilledCells = (grid: GridCell[][]) => grid.flat().filter(isCellFilled).length;
 
