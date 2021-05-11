@@ -6,6 +6,7 @@ export interface Config {
 }
 
 export interface Monad<T> {
+  call: (fn: (value: T) => any) => Monad<T>;
   chain: <R, U extends Monad<R>>(fn: (value: T) => U) => U;
   getOrElse: (defaultValue?: T) => T;
   map: <R>(fn: (value: T) => R) => Monad<R>;
