@@ -1,7 +1,7 @@
 import ErrorMessage from './errors';
 import { Config } from './types';
 import { Identity, tryOrCatch } from './utils/monads.util';
-import { flat, sum } from './utils/functions.util';
+import { always, flat, sum } from './utils/functions.util';
 import { countNecessaryCells } from './utils/puzzle.utils';
 
 export const validateConfig = (config: Config) =>
@@ -13,10 +13,10 @@ export const validateConfig = (config: Config) =>
     .chain(validateSpacesCount);
 
 const validateWidth = (config: Config) =>
-  validateSize(config.width, ErrorMessage.INVALID_WIDTH).map(() => config);
+  validateSize(config.width, ErrorMessage.INVALID_WIDTH).map(always(config));
 
 const validateHeight = (config: Config) =>
-  validateSize(config.height, ErrorMessage.INVALID_HEIGHT).map(() => config);
+  validateSize(config.height, ErrorMessage.INVALID_HEIGHT).map(always(config));
 
 const validateSize = (value: number, error: ErrorMessage) => tryOrCatch(() => {
   if (value <= 0 || value % 5 !== 0) {
@@ -30,13 +30,13 @@ const validateColumns = (config: Config) =>
   Identity(config.columns)
     .chain(validateLineLength(config.width, ErrorMessage.INVALID_COLUMNS))
     .chain(validateLineSpaces(config.height, ErrorMessage.INVALID_COLUMNS))
-    .map(() => config);
+    .map(always(config));
 
 const validateRows = (config: Config) =>
   Identity(config.rows)
     .chain(validateLineLength(config.height, ErrorMessage.INVALID_ROWS))
     .chain(validateLineSpaces(config.width, ErrorMessage.INVALID_ROWS))
-    .map(() => config);
+    .map(always(config));
 
 const validateLineLength = (length: number, error: ErrorMessage) => (lines: number[][]) =>
   tryOrCatch(() => {

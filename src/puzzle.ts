@@ -1,5 +1,5 @@
 import { Config, GridCell, Puzzle, PuzzleLine } from './types';
-import { curry, get, repeatTimes, repeatWhile, trace } from './utils/functions.util';
+import { curry, get, repeatTimes, repeatWhile } from './utils/functions.util';
 import { Identity } from './utils/monads.util';
 import {
   buildColumnLine,
